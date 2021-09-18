@@ -1,0 +1,23 @@
+{
+  "name": "vitepress",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@vuepress/plugin-active-header-links": "^1.8.2",
+    "@vuepress/plugin-back-to-top": "^1.8.2",
+    "@vuepress/plugin-nprogress": "^1.8.2",
+    "vitepress": "^0.18.1"
+  },
+  "scripts": {
+    "dev": "vitepress dev ",
+    "build": "vitepress build ",
+    "serve": "vitepress serve "
+  },
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "globby": "11.0.4",
+    "gray-matter": "^4.0.3",
+    "path": "^0.12.7"
+  }
+}
