@@ -12,7 +12,8 @@
   "scripts": {
     "dev": "vitepress dev ",
     "build": "vitepress build ",
-    "serve": "vitepress serve "
+    "serve": "vitepress serve ",
+    "deploy-gh": "GH=1 yarn build && bash scripts/deploy-gh.sh"
   },
   "dependencies": {
     "fs-extra": "^10.0.0",

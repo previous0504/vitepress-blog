@@ -5,6 +5,7 @@ async function config() {
       // ["link", { rel: "icon", href: "/favicon.ico" }],
     ],
     // 网站标题
+    base:'/vitepress-blog',
     title: "Tao's blog",
     description: "Interview with blog",
     // 打包目录
