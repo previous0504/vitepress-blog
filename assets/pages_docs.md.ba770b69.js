@@ -1,0 +1,1 @@
+import{r as t,o as s,c as e,a}from"./app.23b9c6e8.js";const o='{"title":"Docs","description":"Docs","frontmatter":{"page":true,"title":"Docs","description":"Docs","sidebar":false},"relativePath":"pages/docs.md","lastUpdated":1631932056966}',r={};r.render=function(o,r,c,i,d,n){const p=t("Docs",!0);return s(),e("div",null,[a(p)])};export{o as __pageData,r as default};
