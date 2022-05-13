@@ -1,1 +1,0 @@
-import{r as t,o as s,c as e,a}from"./app.14c57c9d.js";const o='{"title":"Docs","description":"Docs","frontmatter":{"page":true,"title":"Docs","description":"Docs","sidebar":false},"relativePath":"pages/docs.md","lastUpdated":1631932056966}',r={};r.render=function(o,r,c,d,i,n){const p=t("Docs",!0);return s(),e("div",null,[a(p)])};export{o as __pageData,r as default};
