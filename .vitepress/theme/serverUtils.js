@@ -3,7 +3,7 @@ const matter = require('gray-matter')
 const fs = require('fs-extra')
 const path = require('path')
 
-module.exports = { getPosts, generatePaginationPages }
+module.exports = { getPosts }
 
 async function getPosts() {
     let paths = await getPostMDFilePaths()
