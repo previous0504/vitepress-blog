@@ -6,7 +6,7 @@ tags:
 - typescript
 description: 跟着b站小满zs学习vue3
 ---
-##### 介绍vue
+# 介绍vue
 
 vue使用了MVVM(Model-View-ViewModel) 架构
 
@@ -16,23 +16,23 @@ vue使用了MVVM(Model-View-ViewModel) 架构
 
 3.model:数据层(存储数据及对数据的处理如增删改查)
 
-![image-20230214175506508](/Users/zhangzhentao/Library/Application Support/typora-user-images/image-20230214175506508.png)
+![image](/imgs/mvvm.png)
 
-##### npm run dev详解
+## npm run dev详解
 
 先从本地的node_modules中查找.bin文件夹里找有没有vite可以执行，如果没有，会去全局找，全局没有的话会去找环境变量，环境变量没有的话会报错。
 
-##### 虚拟dom、diff算法
+## 虚拟dom、diff算法
 
 * 使用AST静态节点🌲来代替dom节点
 
-###### 1.无key的时候
+### 1.无key的时候
 
-![image-20230207095156844](/Users/zhangzhentao/Library/Application Support/typora-user-images/image-20230207095156844.png)
+![image](/imgs/nokey.png)
 
-###### 2.有key的时候
+### 2.有key的时候
 
-![image-20230209091427062](/Users/zhangzhentao/Library/Application Support/typora-user-images/image-20230209091427062.png)
+![image](/imgs/haskey.png)
 
 最长递增子序列 * leetcode-300
 
@@ -87,11 +87,11 @@ var lengthOfLIS = function (nums) {
 
 
 
-##### 响应式原理
+## 响应式原理
 
 未完待续……
 
-##### Ref
+### Ref
 
 * **ref**，接受一个内部值，返回一个响应式、可更改的ref对象，只有一个指向其内部值的属性.value
 
@@ -156,14 +156,14 @@ var lengthOfLIS = function (nums) {
 
 * **customRef ** 自定义的ref，可以加入防抖等功能
 
-##### Reactive
+### Reactive
 
 * reactive 返回一个对象的响应式代理
 
 * shallowReactive
 * toRaw 返回原始对象
 
-##### Computed
+### Computed
 
 ```javascript
 const count = ref(1)
@@ -178,7 +178,7 @@ plusOne.value = 1
 console.log(count.value) // 0
 ```
 
-##### Watch
+### Watch
 
 * **watch** 
 
@@ -215,39 +215,39 @@ watch([fooRef, barRef], ([foo, bar], [prevFoo, prevBar]) => {
 
   
 
-##### 生命周期
+## 生命周期
 
 一个组件从创建到销毁的过程称为生命周期
 
 vue3的组合式api(setup)是没有 beforeCreate 和 created 生命周期的
 
-###### onBeforeMount()
+### onBeforeMount()
 
 在组件DOM实际渲染安装之前调用，根元素还不存在
 
-###### onMounted()
+### onMounted()
 
 在组件的第一次渲染后调用，允许直接DOM访问
 
-###### onBeforeUpdate()
+### onBeforeUpdate()
 
 数据更新时调用，发生在虚拟DOM打补丁之前
 
-###### onUpdated()
+### onUpdated()
 
 DOM更新后，updated的方法即会调用
 
-###### onBeforeUnmount()
+### onBeforeUnmount()
 
 在卸载组件实例之前调用
 
-###### onUnmounted()
+### onUnmounted()
 
 卸载组件实例后调用，调用此钩子所有指令都被解除绑定，所有时间侦听器都被移除，所有子组件实例被卸载
 
-##### 父子组件传参
+## 父子组件传参
 
-###### defineProps
+### defineProps
 
 **defineProps**-子组件接收父组件的值
 
@@ -267,7 +267,7 @@ const props1 = withDefaults(defineProps<{
 })
 ```
 
-###### defineEmits
+### defineEmits
 
 **defineEmits**-父组件接收子组件的值
 
@@ -284,7 +284,7 @@ const clickTap = ()=>{
 }
 ```
 
-###### ref (defineExpose)
+### ref (defineExpose)
 
 **ref** -父组件使用子组件的值或者方法
 
@@ -306,11 +306,12 @@ defineExpose({
 })
 ```
 
-###### 案例(封装瀑布流事件)
+### 案例(封装瀑布流事件)
 
 使用js来实现绝对定位,具体代码如下
 
 ```javascript
+
 <!-- 瀑布流案例 -->
 <template>
     <div class="wraps">
@@ -380,4 +381,5 @@ onMounted(() => {
 </style>
 
 ```
+
 
