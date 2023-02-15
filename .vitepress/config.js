@@ -1,4 +1,4 @@
-const { getPosts, generatePaginationPages } = require("./theme/serverUtils");
+const { getPosts } = require("./theme/serverUtils");
 async function config() {
   return {
     head:[
