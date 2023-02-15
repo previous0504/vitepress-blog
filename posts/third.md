@@ -5,11 +5,11 @@ tags:
 - vue2
 description: 学习vue2源码笔记
 ---
-##### rollup环境搭建
+## rollup环境搭建
 
 npm init -y 生成package.json
 
-###### 初始化构建
+## vue初始化构建
 
 1.vue通过new Vue()构建，用class的话会将所有方法耦合在一起，所以用prototype。
 
