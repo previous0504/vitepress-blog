@@ -6,7 +6,7 @@ tags:
 - typescript
 description: 跟着b站小满zs学习vue3
 ---
-# 介绍vue
+## 介绍vue
 
 vue使用了MVVM(Model-View-ViewModel) 架构
 
@@ -381,5 +381,255 @@ onMounted(() => {
 </style>
 
 ```
+## 全局组件，局部组件，递归组件
+
+### 全局组件
+
+```javascript
+//main.ts
+import Card from './components/Card/index.vue'
+createApp(App).component('Card',Card).mount('#app')
+
+//如果要注册所有的组件
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
+const app = createApp(App)
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
+```
+### 递归组件
+
+原理和js递归是一样的，自己调用自己，通过一个条件来结束递归，否则导致内存泄漏
+
+```vue
+// 父组件
+<Tree :data="data"></Tree>
+// 子组件
+// 递归组件
+<template>
+    <div @click.stop="clickTap(item,$event)" v-for="item in data" >
+        <input type="checkbox" v-model="item.checked"> <span>{{ item.name }}</span>
+        <Tree v-if="item?.children?.length" :data="item?.children"></Tree>
+    </div>
+</template>
+<script setup lang="ts">
+interface TreeList  {
+  name:string,
+  checked:boolean,
+  children?:TreeList[]
+}
+type Props<T> = {
+    data?:T[] | []
+}
+const props = defineProps<Props<TreeList>>()
+const clickTap = (item:TreeList,e:Event)=>{
+    console.log(item,e)
+}
+
+</script>
+// 默认递归组件名称就是文件名，这里新建一个script来命名
+// 使用插件 <script setup name='xxx' lang='ts'>
+<script lang="ts">
+export default{
+    name:'tao'
+}
+</script>
+<style lang="css">
+
+</style>
+```
+### 动态组件
+
+让多个组件使用同一个挂载点，并动态切换
+
+
+```vue
+<template>
+  <div>
+    当前组件 {{ currentTab }}
+    <!-- {{ tabs }} -->
+    <button v-for="(_, tab) in tabs" :key="tab" :class="['tab-button', { active: currentTab === tab }]"
+      @click="currentTab = tab">{{ tab}}</button>
+    <!-- <Tree :data="data"></Tree> -->
+    <component :is="tabs[currentTab]"></component>
+  </div>
+</template>
+<script setup lang="ts">
+import A from './components/aciveComponent/A.vue'
+import B from './components/aciveComponent/B.vue'
+import C from './components/aciveComponent/C.vue'
+
+const currentTab = ref('A')
+
+const tabs:any = {
+  A, B, C
+}
+</script>
+```
+
+1.在vue2通过组件名切换，在vue3 setup是通过组件实例切换
+
+2.如果组件实例放在Reactive，得使用shallowRef或markRaw跳过proxy代理
+
+## 插槽
+
+插槽就是子组件给父组件使用的一个占位符，用《slot》《/slot》来表示
+
+### 匿名插槽
+
+在子组件放置一个插槽`<slot></slot>`
+
+### 具名插槽
+
+`<slot name="header"></slot>` 父组件 `<template v-slot:header></template>`
+
+### 作用域插槽
+
+父组件使用子组件的数据
+
+```vue
+// 父组件
+<template>
+    <div>
+        <slot :data="obj"></slot>
+    </div>
+</template>
+<script setup lang="ts">
+const obj = {
+    name:'兵哥哥',
+    age:20
+}
+</script>
+
+
+// 子组件
+<template>
+  <div>
+  <SlotA v-slot="{data}">{{data.name}}</SlotA>
+  </div>
+</template>
+<script setup lang="ts">
+import SlotA from './components/SlotA.vue'
+</script>
+```
+
+### 动态插槽
+
+插槽可以是一个变量名
+
+`<template #[name]></template>`
+
+## 异步组件&Suspense
+
+### Ajax(异步的javascript和XML)
+
+Ajax的核心是XMLHttpRequest对象
+
+对象方法
+
+ 1.const xhr = new XMLHttpRequest()
+
+ 2.abort()取消请求
+
+ 3.open(method,url,async,user,psw),method:请求类型，url:文件位置,async:true异步 false同步
+
+4.send()
+
+onreadystatechange 每当readyState属性改变，就会调用该函数
+
+readyState共有5种状态
+
+* 0: 请求未初始化
+
+* 1: 服务器连接已建立
+
+* 2: 请求已接收
+
+* 3: 请求处理中
+
+* 4: 请求已完成，且响应已就绪
+
+  
+
+status : 200:'OK' 404:'未找到页面'
+
+### 封装axios
+
+```javascript
+export const axios = {
+    get<T>(url:string):Promise<T>{
+        return new Promise((resolve)=>{
+            const xhr = new XMLHttpRequest()
+            xhr.open('GET',url)
+            xhr.send()
+            xhr.onreadystatechange = ()=>{
+                if(xhr.readyState == 4 && xhr.status == 200){
+                    setTimeout(()=>{
+                        resolve(JSON.parse(xhr.responseText))
+                    },2000)
+                   
+                }
+            }
+        })
+    }
+}
+```
+
+### Suspense
+
+两个插槽 
+
+#default展示异步依赖加载完的组件 
+
+#fallback展示加载中的内容
+
+```vue
+
+<template>
+  <div>
+    <Suspense>
+      <template #default>
+        <asyncCom></asyncCom>
+      </template>
+      <template #fallback>
+        <Skeleton></Skeleton>
+      </template>
+    </Suspense>
+  </div>
+</template>
+<script setup lang="ts">
+import Skeleton from './components/sync/Skeleton.vue'
+// import asyncCom from './components/sync/Sync.vue'
+
+const asyncCom:any = defineAsyncComponent(() => 
+  import('./components/sync/Sync.vue')
+)
+</script>
+
+<style >
+
+</style>
+
+```
+
+* defineAsyncComponent方法可接收一个返回Promise的加载函数
+* 也可搭配ES模块动态导入
+* 用异步组件打包会额外生成一个js文件，可以优化首屏渲染的时间
+
+## Teleport
+
+可以将一个组件内部的一部分模版“传送”到该组件的DOM结构外层的位置去
+
+modal的情况使用比较多
+
+`<Teleport :disabled="isMobile" to="body">..</Teleport>`
+
+多个`<Teleport>`
+
+
+
+
+
 
 
