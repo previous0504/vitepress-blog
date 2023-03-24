@@ -474,7 +474,7 @@ const tabs:any = {
 
 ## 插槽
 
-插槽就是子组件给父组件使用的一个占位符，用《slot》《/slot》来表示
+插槽就是子组件给父组件使用的一个占位符，用`<slot></slot>`来表示
 
 ### 匿名插槽
 
@@ -625,9 +625,361 @@ modal的情况使用比较多
 
 `<Teleport :disabled="isMobile" to="body">..</Teleport>`
 
-多个`<Teleport>`
+多个`<Teleport>`挂载同一个dom，会依次渲染
+
+## Keepalive
+
+它能够在多个组件动态切换时缓存被移除的组件实例,名称会根据组件的**name**进行匹配
+
+```vue
+<!-- 非活跃的组件将会被缓存！ -->
+<KeepAlive>
+  <component :exclude="/a|b" :include="['a', 'b']" :max="10" :is="activeComponent" />
+</KeepAlive>
+```
+
+生命周期：onActivated() onDeactivated() onMounted()只有第一次进入页面会调用
+
+## Transtion
+
+省略
+
+## 依赖注入
+
+provide():第一个参数是要注入的key，第二个参数是要注入的值
+
+inject()
+
+```vue
+<script setup>
+import { inject } from 'vue'
+import { fooSymbol } from './injectionSymbols'
+
+// 注入值的默认方式
+const foo = inject('foo')
+
+// 注入响应式的值
+const count = inject('count')
+
+// 通过 Symbol 类型的 key 注入
+const foo2 = inject(fooSymbol)
+
+// 注入一个值，若为空则使用提供的默认值
+const bar = inject('foo', 'default value')
+
+// 注入一个值，若为空则使用提供的工厂函数
+const baz = inject('foo', () => new Map())
+
+// 注入时为了表明提供的默认值是个函数，需要传入第三个参数
+const fn = inject('function', () => {}, false)
+</script>
+```
+
+## 兄弟组件传参和Bus
+
+1.借助父组件传参，父组件充当桥梁
+
+2.Event Bus (mitt)
+
+```typescript
+interface Event {
+  on: (name: string, fn: Function) => void,
+  emit: (name: string, ...args: Array<any>) => void,
+  off: () => void,
+  once: () => void
+}
+interface List {
+  [key: string]: Array<Function>
+}
+
+class Dispatch implements Event {
+  list: List
+  constructor() {
+    this.list = {}
+  }
+  // 接收
+  on(name: string, fn: Function) {
+    let callback = this.list[name] || []
+    callback.push(fn)
+    this.list[name] = callback
+    // console.log('on', this.list)
+  }
+  // 发射
+  emit(name: string, ...args: Array<any>) {
+    let eventName = this.list[name] || []
+    if (eventName) {
+      eventName.forEach(fn => { 
+        fn.apply(this, args) 
+      }
+      )
+    } else {
+      console.error('名称错误')
+    }
+  }
+  off() {
+
+  }
+  once() {
+
+  }
+}
+```
+
+## Jsx 手写babel插件
+
+未完待续……
+
+## v-model
+
+* v-model是语法糖，通过props和emit组合而成
+
+* prop: value -> modelValue
+
+* v-bind的.sync修饰符和组件的model选项已移除
+
+* 新增多个v-model
+
+* ```javascript
+  const props = defineProps(['name','nameModifiers'])
+  ```
+
+  
+
+## 自定义指令
+
+### vue3指令的钩子函数
+
+* created
+* beforeMount
+* mounted
+* beforeUpdate
+* updated
+* beforeUnmount
+* Unmounted
+
+### 函数简写
+
+v-permission -> 此时只在 mounted 和 updated 时候触发
+
+```javascript
+const vPermission: Directive = (el,binding)=>{
+  console.log(el,binding)
+  el.style.display = 'none'
+}
+```
+
+### 生命周期钩子参数详解
+
+1.el -> 当前绑定的DOM元素
+
+2.binding 
+
+* instance：使用指令的组件实例子
+* value：传递给指令的值 v-permission="2"，该值为2
+* oldValue: 先前的值，仅在beforeUpdate和updated中可用
+* arg:传递给指令的参数，v-permission:foo，arg为'foo'
+* modifiers：包括修饰符的对象，v-permission:foo.a，modifiers为'a'
+* dir: 在注册指令时作为参数传递 
+
+![image-20230316160806441](/Users/zhangzhentao/Library/Application Support/typora-user-images/image-20230316160806441.png)
+
+3.vnode:代表绑定元素的VNode
+
+## 自定义hooks
+
+```typescript
+// bas464.ts
+import { onMounted } from "vue"
+
+type Options = {
+    el:string
+}
+
+export default function(options:Options):Promise<{baseUrl:string}>{
+    return new Promise(resolve=>{
+        onMounted(()=>{
+            const file:HTMLImageElement = document.querySelector(options.el) as HTMLImageElement;
+            file.onload= ()=>{
+                resolve({baseUrl:toBase64(file)})
+            }
+        })
+        const toBase64 = (el:any)=>{
+            const canvas:HTMLCanvasElement = document.createElement('canvas')
+            const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+            canvas.width = el.width;
+            canvas.height = el.height;
+            ctx?.drawImage(el,0,0,canvas.width,canvas.height)
+            return canvas.toDataURL('a.webp')
+            
+        }
+    })
+   
+}
+```
+
+```vue
+// image.vue
+<template>
+  <div>
+    自定义hooks
+    <img id='img' height="300" width="300" src="../public/a.webp" alt="">
+  </div>
+</template>
+<script setup lang="ts">
+import useBase64 from './hooks/base64'
+useBase64({el:'#img'}).then(res=>{
+  console.log(res.baseUrl)
+})
+</script>
+
+<style ></style>
+
+```
+
+## vue3定义全局函数和变量
+
+app.config.globalProperties.msg = 'hello'
+
+组件中使用 getCurrentInstance()来获取实例
+
+```javascript
+const app = getCurrentInstance()
+app?.proxy.msg
+```
+
+## 编写vue3插件
+
+```typescript
+//index.ts
+// 声明类型
+import {App,createVNode,VNode} from 'vue'
+import { render } from 'vue'
+import Loading from './index.vue'
 
 
+export default  {
+    install:(app: App)=>{
+        // 创建组件VNode
+        const vnode:VNode = createVNode(Loading)
+        // 渲染
+        render(vnode,document.body)
+        // 全局挂载
+        app.config.globalProperties.$loading = {
+            show:vnode.component?.exposed?.show,
+            hide:vnode.component?.exposed?.hide,
+        }
+    }
+}
+```
+
+```vue
+// 全局loading组件 通过defineExpose导出
+<template>
+    <div v-if="loading" class="loading">
+        loading...
+    </div>
+</template>
+<script setup lang="ts">
+const loading = ref(false)
+const show = ()=>{
+    loading.value = true
+}
+const hide = ()=>{
+    loading.value = false
+}
+defineExpose({
+    show,hide
+})
+</script>
+  
+<style scoped>
+.loading {
+    background-color: black;
+    width: 500px;
+    height: 500px;
+}
+</style>
+  
+```
+
+```vue
+// 如何使用
+<template>
+  <div class="plugin">
+  
+  </div>
+</template>
+<script setup lang="ts">
+import { getCurrentInstance} from 'vue'
+onMounted(()=>{
+  const app:any = getCurrentInstance()
+  app?.proxy.$loading.show()
+  setTimeout(()=>{
+    app?.proxy.$loading.hide()
+  },5000)
+})
+</script>
+
+<style scoped>
+.plugin{
+  background-color: #fff;
+}</style>
+
+```
+
+## Event Loop nextTick
+
+未完待续
+
+## 函数式编程 h函数
+
+h函数相当于使用createVnode()来创建虚拟dom，再用render()来渲染
+
+```vue
+<template>
+  <Btn @on-click="getBtn" name="哈哈哈">
+    <template #default>
+      这是插槽
+    </template>
+   
+  </Btn>
+</template>
+<script setup lang="ts">
+import { h } from 'vue'
+
+type Props = {
+  name?: string
+}
+
+const Btn = (props: Props, context: any) => {
+  return h('div', {
+    class: 'c-orange-9 flex justify-between',
+    onClick: () => {
+      context.emit('on-click', '我是按钮')
+    }
+  }, context.slots.default()
+	// props.name
+  )
+}
+const getBtn = (str: string) => {
+  console.log(str);
+
+}
+</script>
+
+<style scoped></style>
+
+```
+
+## 桌面程序Electron
+
+等待填入..踩坑
+
+## webpack构建vue3
+
+## vue3性能优化
+
+## web components(shadow dom)
 
 
 
